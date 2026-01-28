@@ -1,7 +1,11 @@
 #!/usr/bin/env python
 """v0_bash_agent_mini.py - Mini Claude Code (Compact)"""
-from anthropic import Anthropic; from dotenv import load_dotenv; import subprocess as sp, sys, os
-load_dotenv(override=True); C = Anthropic(base_url=os.getenv("ANTHROPIC_BASE_URL")); M = os.getenv("MODEL_ID", "claude-sonnet-4-5-20250929")
+from anthropic import Anthropic; 
+from dotenv import load_dotenv; 
+import subprocess as sp, sys, os
+load_dotenv(override=True); 
+C = Anthropic(base_url=os.getenv("ANTHROPIC_BASE_URL")); 
+M = os.getenv("MODEL_ID", "claude-sonnet-4-5-20250929")
 T = [{"name":"bash","description":"Shell cmd. Read:cat/grep/find/rg/ls. Write:echo>/sed. Subagent(for complex subtask): python v0_bash_agent_mini.py 'task'","input_schema":{"type":"object","properties":{"command":{"type":"string"}},"required":["command"]}}]
 S = f"CLI agent at {os.getcwd()}. Use bash to solve problems. Spawn subagent for complex subtasks: python v0_bash_agent_mini.py 'task'. Subagent isolates context and returns summary. Be concise."
 
@@ -13,4 +17,12 @@ def chat(p, h=[]):
     h.append({"role":"assistant","content":[{"type":b.type,**({"text":b.text}if hasattr(b,"text")else{"id":b.id,"name":b.name,"input":b.input})}for b in r.content]})
     return "".join(b.text for b in r.content if hasattr(b,"text"))
 
-if __name__=="__main__":[print(chat(sys.argv[1]))]if len(sys.argv)>1 else[print(chat(q,h))for h in[[]]for _ in iter(int,1)if(q:=input("\033[36m>> \033[0m"))not in("q","")]
+if __name__=="__main__":
+    if len(sys.argv)>1:
+        print(chat(sys.argv[1]))
+    else:
+        for h in [[]]:
+            for _ in iter(int,1):
+                q = input("\033[36m>> \033[0m")
+                if q not in ("q",""):
+                    print(chat(q,h))
